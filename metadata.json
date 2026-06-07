@@ -1,0 +1,6 @@
+{
+  "name": "ResiTrend",
+  "description": "Professional Identity, Recognition, Innovation & Legacy Platform for Medical Residents",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

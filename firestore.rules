@@ -1,0 +1,188 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net (default deny catch-all)
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- REUSABLE SECURITY UTILITY PRIMITIVES ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == "aahanshah2580@gmail.com"
+      );
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- COLLECTION RULES ---
+
+    // 1. Private User accounts (PII isolation)
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isAdmin();
+      allow list: if isAdmin();
+      allow create: if isEmailVerified() && isOwner(userId) && 
+                    incoming().uid == userId && 
+                    (incoming().role == "resident" || incoming().role == "admin") && 
+                    incoming().email == request.auth.token.email &&
+                    incoming().createdAt is string && incoming().createdAt.size() <= 64;
+      allow update: if isEmailVerified() && (isOwner(userId) || isAdmin()) &&
+                    // Users cannot self-escalate their role to admin
+                    incoming().role == existing().role &&
+                    incoming().email == existing().email &&
+                    incoming().uid == existing().uid;
+      allow delete: if isAdmin();
+    }
+
+    // 2. Public Resident Profiles (Academic and Skill Summary Tracker)
+    match /profiles/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isEmailVerified() && isOwner(uid) &&
+                    incoming().uid == uid &&
+                    incoming().totalXp == 0 &&
+                    incoming().silentApplauseCount == 0 &&
+                    incoming().updatedAt is string && incoming().updatedAt.size() <= 64;
+      allow update: if isEmailVerified() && (
+        isOwner(uid) || 
+        isAdmin() ||
+        // Allow updating endorsements and applause via transactions/increments
+        (
+          incoming().uid == existing().uid &&
+          incoming().displayName == existing().displayName &&
+          incoming().bio == existing().bio &&
+          incoming().year == existing().year
+        )
+      );
+      allow delete: if isAdmin();
+    }
+
+    // 3. Shared Achievements (The Hall of Impact entries)
+    match /achievements/{achievementId} {
+      allow read: if isSignedIn();
+      allow create: if isEmailVerified() && 
+                    incoming().userId == request.auth.uid &&
+                    incoming().status == "self-declared" &&
+                    incoming().createdAt is string && incoming().createdAt.size() <= 64 &&
+                    incoming().id == achievementId;
+      allow update: if isEmailVerified() && (
+        isAdmin() ||
+        // Owner updates and triggers community-validations
+        (
+          incoming().userId == existing().userId &&
+          incoming().id == existing().id &&
+          (
+            // Scenario A: Recipient updating basic editable details if not locked
+            (existing().status == "self-declared" && incoming().status == "self-declared") ||
+            // Scenario B: Other peers adding their approvals to community-validated array (strictly constrained to appending)
+            (incoming().validations.size() > existing().validations.size())
+          )
+        )
+      );
+      allow delete: if isEmailVerified() && (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // 4. Peer-to-Peer Endorsements
+    match /endorsements/{endorsementId} {
+      allow read: if isSignedIn();
+      allow create: if isEmailVerified() &&
+                    incoming().fromUserId == request.auth.uid &&
+                    incoming().fromUserId != incoming().toUserId && // Prevent self-endorsement!
+                    incoming().createdAt is string && incoming().createdAt.size() <= 64 &&
+                    incoming().id == endorsementId;
+      allow update: if false; // Endorsements are permanent/immutable historical logs
+      allow delete: if isEmailVerified() && (resource.data.fromUserId == request.auth.uid || isAdmin());
+    }
+
+    // 5. Peer-to-Peer Silent Applause (Anonymous Appreciations)
+    match /recognitions/{recognitionId} {
+      allow read: if isSignedIn();
+      allow create: if isEmailVerified() &&
+                    incoming().toUserId != request.auth.uid && // Cannot send to self!
+                    incoming().createdAt is string && incoming().createdAt.size() <= 64 &&
+                    incoming().id == recognitionId;
+      allow update: if false; // Pure immutable records
+      allow delete: if isAdmin();
+    }
+
+    // 6. Resident Innovation Ideas
+    match /innovationIdeas/{ideaId} {
+      allow read: if isSignedIn();
+      allow create: if isEmailVerified() &&
+                    incoming().userId == request.auth.uid &&
+                    incoming().status == "Submitted" &&
+                    incoming().upvotesCount == 1 && // Starts with self-upvote
+                    incoming().createdAt is string && incoming().createdAt.size() <= 64 &&
+                    incoming().id == ideaId;
+      allow update: if isEmailVerified() && (
+        isAdmin() ||
+        // Standard user voting or editing their own submitted draft path
+        (
+          incoming().id == existing().id &&
+          incoming().userId == existing().userId &&
+          (
+            // Option 1: Peer upvoting / downvoting (only allowed keys changing are upvotesCount and upvotedBy)
+            (
+              incoming().status == existing().status &&
+              incoming().title == existing().title &&
+              incoming().problem == existing().problem &&
+              incoming().proposedSolution == existing().proposedSolution &&
+              incoming().expectedImpact == existing().expectedImpact &&
+              incoming().commentsCount == existing().commentsCount
+            ) ||
+            // Option 2: Editing basic details and user description before approval lock
+            (
+              existing().status == "Submitted" && 
+              incoming().status == "Submitted"
+            )
+          )
+        )
+      );
+      allow delete: if isEmailVerified() && (resource.data.userId == request.auth.uid || isAdmin());
+
+      // 6a. Subcollection for Comments under Innovation Ideas
+      match /comments/{commentId} {
+        allow read: if isSignedIn();
+        allow create: if isEmailVerified() &&
+                      incoming().userId == request.auth.uid &&
+                      incoming().id == commentId &&
+                      incoming().createdAt is string && incoming().createdAt.size() <= 64;
+        allow update, delete: if isAdmin() || (resource != null && resource.data.userId == request.auth.uid);
+      }
+    }
+
+    // 7. Institution-wide Announcements
+    match /announcements/{announcementId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 8. Whitelist Emails Verification Registry
+    match /whitelist/{email} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

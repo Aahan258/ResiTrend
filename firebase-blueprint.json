@@ -1,0 +1,333 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Private user account mapping and email verification data",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Unique Firebase user ID"
+        },
+        "email": {
+          "type": "string",
+          "description": "User login Google email"
+        },
+        "role": {
+          "type": "string",
+          "enum": ["resident", "admin"],
+          "description": "User authorization role"
+        },
+        "emailVerified": {
+          "type": "boolean",
+          "description": "Whether user email is verified"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "email", "role", "emailVerified", "createdAt"]
+    },
+    "Profile": {
+      "title": "Profile",
+      "description": "Public professional profile, stats cache, and reputation scoring of a resident",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "User identifier of the resident"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Full name of the resident"
+        },
+        "bio": {
+          "type": "string",
+          "description": "Professional short description"
+        },
+        "year": {
+          "type": "string",
+          "enum": ["Junior Resident (Y1)", "Junior Resident (Y2)", "Junior Resident (Y3)", "Senior Resident (Y4)", "Senior Resident (Y5)", "Senior Resident (Y6)"],
+          "description": "Resident status/seniority year"
+        },
+        "googleScholar": {
+          "type": "string"
+        },
+        "orcid": {
+          "type": "string"
+        },
+        "linkedIn": {
+          "type": "string"
+        },
+        "researchGate": {
+          "type": "string"
+        },
+        "academicXp": {
+          "type": "integer"
+        },
+        "teachingXp": {
+          "type": "integer"
+        },
+        "innovationXp": {
+          "type": "integer"
+        },
+        "recognitionXp": {
+          "type": "integer"
+        },
+        "totalXp": {
+          "type": "integer"
+        },
+        "reputationLevel": {
+          "type": "string",
+          "enum": ["Emerging", "Established", "Respected", "Influential", "Exceptional"]
+        },
+        "endorsementCounts": {
+          "type": "object",
+          "description": "Cache of counts for each skills category: Clinical Skills, Surgical Skills, Teaching, Research, Leadership, Teamwork, Communication, Innovation"
+        },
+        "profileCompletionScore": {
+          "type": "integer"
+        },
+        "silentApplauseCount": {
+          "type": "integer"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["uid", "displayName", "bio", "year", "academicXp", "teachingXp", "innovationXp", "recognitionXp", "totalXp", "reputationLevel", "endorsementCounts", "profileCompletionScore", "silentApplauseCount", "updatedAt"]
+    },
+    "Achievement": {
+      "title": "Achievement",
+      "description": "Academic achievement, award, or contribution",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Academic Achievement", "Award", "Certification", "Fellowship", "Conference Presentation", "Publication", "Research Project", "Teaching Contribution", "Innovation Contribution"]
+        },
+        "date": {
+          "type": "string"
+        },
+        "proofUrl": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["self-declared", "community-validated", "admin-verified"]
+        },
+        "verifiedBy": {
+          "type": "string"
+        },
+        "validations": {
+          "type": "array"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "userId", "displayName", "title", "category", "date", "status", "createdAt", "updatedAt"]
+    },
+    "Endorsement": {
+      "title": "Endorsement",
+      "description": "Peer endorsement record",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "fromUserId": {
+          "type": "string"
+        },
+        "fromName": {
+          "type": "string"
+        },
+        "toUserId": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Clinical Skills", "Surgical Skills", "Teaching", "Research", "Leadership", "Teamwork", "Communication", "Innovation"]
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "fromUserId", "fromName", "toUserId", "category", "createdAt"]
+    },
+    "Recognition": {
+      "title": "Recognition",
+      "description": "Silent applause anonymous peer recognition",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "fromUserIdHash": {
+          "type": "string",
+          "description": "Hash of fromUserId + current Month to prevent duplicate votes anonymously"
+        },
+        "toUserId": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Teaching help", "Emergency support", "Research assistance", "Clinical teamwork", "Leadership"]
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "fromUserIdHash", "toUserId", "message", "category", "createdAt"]
+    },
+    "InnovationIdea": {
+      "title": "InnovationIdea",
+      "description": "Improvement idea suggested by a resident",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "displayName": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "problem": {
+          "type": "string"
+        },
+        "proposedSolution": {
+          "type": "string"
+        },
+        "expectedImpact": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Submitted", "Community Review", "Under Consideration", "Approved", "Implemented"]
+        },
+        "upvotesCount": {
+          "type": "integer"
+        },
+        "upvotedBy": {
+          "type": "array"
+        },
+        "commentsCount": {
+          "type": "integer"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "userId", "displayName", "title", "problem", "proposedSolution", "expectedImpact", "status", "upvotesCount", "upvotedBy", "commentsCount", "createdAt", "updatedAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Institution wide announcement",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "content": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Academic Events", "Grand Rounds", "Workshops", "Conferences", "Deadlines"]
+        },
+        "date": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "authorId": {
+          "type": "string"
+        }
+      },
+      "required": ["id", "title", "content", "category", "createdAt", "authorId"]
+    },
+    "Whitelist": {
+      "title": "Whitelist",
+      "description": "Whitelisted email address of resident with associated full name to verify authentic registrations in cloud and locally",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        }
+      },
+      "required": ["email", "name", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Private user configuration"
+    },
+    "/profiles/{uid}": {
+      "schema": "Profile",
+      "description": "Public resident professional profiles"
+    },
+    "/achievements/{achievementId}": {
+      "schema": "Achievement",
+      "description": "All resident academic and clinical achievements"
+    },
+    "/endorsements/{endorsementId}": {
+      "schema": "Endorsement",
+      "description": "Peer skill endorsements mapping"
+    },
+    "/recognitions/{recognitionId}": {
+      "schema": "Recognition",
+      "description": "Anonymous silent applause recognition records"
+    },
+    "/innovationIdeas/{ideaId}": {
+      "schema": "InnovationIdea",
+      "description": "Surgical or clinical innovation logs by residents"
+    },
+    "/announcements/{announcementId}": {
+      "schema": "Announcement",
+      "description": "Official institutional alerts"
+    },
+    "/whitelist/{email}": {
+      "schema": "Whitelist",
+      "description": "Authorized resident identity verification registry"
+    }
+  }
+}
