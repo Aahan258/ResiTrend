@@ -39,15 +39,15 @@ export const LeaderboardsComponent: React.FC = () => {
   const currentBoard = boards.find(b => b.id === activeLeaderboard)!;
 
   return (
-    <div className="space-y-6 animate-fade-in" id="leaderboards_panel">
+    <div className="space-y-6 animate-fade-in text-slate-900 dark:text-white" id="leaderboards_panel">
       {/* Introduction Hero */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-6 relative overflow-hidden backdrop-blur-md shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
-        <div className="absolute top-0 right-0 h-40 w-40 bg-white/5 rounded-full blur-3xl -z-10" />
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 relative overflow-hidden shadow-sm">
+        <div className="absolute top-0 right-0 h-40 w-40 bg-indigo-500/5 rounded-full blur-3xl -z-10" />
         <div className="flex items-center gap-3">
-          <Trophy className="h-5 w-5 text-white" />
-          <h1 className="text-base font-bold text-white tracking-tight leading-none font-sans">Clinical Excellence Leaderboards</h1>
+          <Trophy className="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
+          <h1 className="text-base font-bold text-slate-950 dark:text-white tracking-tight leading-none font-sans">Clinical Excellence Leaderboards</h1>
         </div>
-        <p className="text-white/60 text-xs mt-2.5 max-w-2xl leading-relaxed">
+        <p className="text-slate-600 dark:text-slate-400 text-xs mt-2.5 max-w-2xl leading-relaxed">
           Celebrating professional capability rather than basic gamification. ResiTrend profiles achievements across distinct operational categories, ensuring every resident's contribution is highlighted under their specific strength.
         </p>
       </div>
@@ -63,41 +63,38 @@ export const LeaderboardsComponent: React.FC = () => {
               onClick={() => setActiveLeaderboard(b.id as any)}
               className={`p-4 rounded-xl border text-left transition relative overflow-hidden cursor-pointer ${
                 isActive 
-                  ? "bg-white/10 border-white/20 text-white shadow-sm ring-1 ring-white/10" 
-                  : "bg-white/5 border-white/10 hover:bg-white/10 text-white/60"
+                  ? "bg-indigo-500 text-white border-indigo-400 dark:border-indigo-500 shadow-sm ring-1 ring-indigo-400/20" 
+                  : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850 text-slate-600 dark:text-slate-400"
               }`}
             >
-              <div className="flex items-center justify-between mb-2 pb-1 border-b border-white/5">
-                <Icon className={`h-4 w-4 ${isActive ? "text-white animate-pulse" : "text-white/40"}`} />
-                <span className="text-[10px] text-white/30 font-mono">Board</span>
+              <div className="flex items-center justify-between mb-2 pb-1 border-b border-slate-100 dark:border-slate-800/40">
+                <Icon className={`h-4 w-4 ${isActive ? "text-white" : "text-slate-400 dark:text-slate-500"}`} />
+                <span className={`text-[10px] font-mono ${isActive ? "text-indigo-100/75" : "text-slate-400/80 dark:text-slate-500"}`}>Board</span>
               </div>
-              <span className="block text-xs font-bold leading-none">{b.label}</span>
-              <span className="block text-[9px] text-white/40 mt-1 leading-normal truncate">{b.desc}</span>
+              <span className={`block text-xs font-bold leading-none ${isActive ? "text-white" : "text-slate-800 dark:text-slate-250"}`}>{b.label}</span>
+              <span className={`block text-[9px] mt-1 leading-normal truncate ${isActive ? "text-indigo-100/75" : "text-slate-400 dark:text-slate-500"}`}>{b.desc}</span>
             </button>
           );
         })}
       </div>
 
       {/* Main classified leaderboard table display card */}
-      <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4 shadow-sm backdrop-blur-sm">
+      <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-5 space-y-4 shadow-sm">
         <div>
-          <h2 className="text-sm font-bold text-white flex items-center gap-1.5 leading-none font-sans">
+          <h2 className="text-sm font-bold text-slate-950 dark:text-white flex items-center gap-1.5 leading-none font-sans">
             {currentBoard.label} Register
           </h2>
-          <p className="text-white/50 text-xs mt-1.5 font-light">
+          <p className="text-slate-500 dark:text-slate-400 text-xs mt-1.5 font-light">
             {currentBoard.desc}
           </p>
         </div>
 
         {currentBoard.data.length === 0 ? (
-          <p className="text-center text-white/30 text-xs font-mono py-12">No residents cataloged under this segment yet.</p>
+          <p className="text-center text-slate-400 dark:text-slate-500 text-xs font-mono py-12">No residents cataloged under this segment yet.</p>
         ) : (
           <div className="space-y-2.5">
             {currentBoard.data.map((res: Profile, index: number) => {
               const isFirst = index === 0;
-              const isSecond = index === 1;
-              const isThird = index === 2;
-              
               const val = res[currentBoard.xpField as keyof Profile];
               const scoreLabel = activeLeaderboard === "appreciated" 
                 ? `${val} Applause` 
@@ -112,41 +109,41 @@ export const LeaderboardsComponent: React.FC = () => {
               return (
                 <div 
                   key={res.uid}
-                  className={`bg-white/5 border border-white/5 p-3.5 rounded-xl flex items-center justify-between gap-4 transition hover:border-white/10 ${
+                  className={`border p-3.5 rounded-xl flex items-center justify-between gap-4 transition ${
                     isFirst 
-                      ? "bg-gradient-to-r from-white/10 via-white/5 to-white/10 border-white/15 shadow-sm" 
-                      : ""
+                      ? "bg-indigo-50/40 dark:bg-indigo-950/20 border-indigo-100 dark:border-indigo-900/30 shadow-sm" 
+                      : "bg-slate-50/50 dark:bg-slate-950/40 border-slate-200/60 dark:border-slate-850 hover:border-slate-300 dark:hover:border-slate-750"
                   }`}
                 >
                   <div className="flex items-center gap-3 w-full max-w-md truncate">
                     {/* Rank indicator with Crown / Sparkles style */}
                     <div className="w-8 flex justify-center shrink-0">
                       {isFirst ? (
-                        <Crown className="h-4.5 w-4.5 text-white" />
+                        <Crown className="h-4.5 w-4.5 text-indigo-500 dark:text-indigo-400" />
                       ) : (
-                        <span className="font-mono text-xs text-white/40 font-bold">{index + 1}</span>
+                        <span className="font-mono text-xs text-slate-400 dark:text-slate-500 font-bold">{index + 1}</span>
                       )}
                     </div>
 
                     {/* Avatar box */}
-                    <div className="h-8 w-8 rounded-lg bg-[#09090b] border border-white/10 flex items-center justify-center font-bold text-xs text-white/60 shrink-0">
+                    <div className="h-8 w-8 rounded-lg bg-slate-200 dark:bg-slate-950 border border-slate-300/50 dark:border-slate-800 flex items-center justify-center font-bold text-xs text-slate-600 dark:text-slate-400 shrink-0">
                       {res.displayName[0]}
                     </div>
 
                     {/* Name block */}
                     <div className="truncate">
-                      <span className="block text-xs font-bold text-white tracking-tight leading-none font-sans">{res.displayName}</span>
-                      <span className="text-[10px] text-white/40 mt-1 block font-mono">{res.year}</span>
+                      <span className="block text-xs font-bold text-slate-900 dark:text-white tracking-tight leading-none font-sans">{res.displayName}</span>
+                      <span className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 block font-mono">{res.year}</span>
                     </div>
                   </div>
 
                   {/* Right: Score Metrics display */}
                   <div className="flex items-center gap-3">
-                    <span className="px-2 py-0.5 rounded-full bg-[#09090b]/80 text-[10px] text-white/60 border border-white/5 font-mono">
+                    <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-950 text-[10px] text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 font-mono">
                       {res.reputationLevel}
                     </span>
                     <span className={`text-xs font-mono font-bold leading-none select-none text-right min-w-[70px] ${
-                      isFirst ? "text-white" : "text-white/60"
+                      isFirst ? "text-indigo-600 dark:text-indigo-400" : "text-slate-600 dark:text-slate-400"
                     }`}>
                       {scoreLabel}
                     </span>

@@ -197,7 +197,7 @@ export const ActivityOverview: React.FC = () => {
 
   // Calculate engagement completion count
   const checklistItems = [
-    { label: "Connect Professional Identifiers (ORCID, Google Scholar, etc)", done: hasLinks, hint: "Set this on your public profile link panel." },
+    { label: "Connect Professional Identifiers (ORCID, Scholar, LinkedIn)", done: hasLinks, hint: "Set this on your public profile links panel." },
     { label: "Declare Academic or Clinical Milestones", done: hasMilestone, hint: "Click 'Log Value Creation' below to register a milestone." },
     { label: "Endorse or Validate a Peer's Achievement", done: hasValidatedPeer, hint: "Find a colleague on the timeline and validate their record." },
     { label: "Participate in Innovation Design (Draft or Upvote)", done: hasInnovationParticipation, hint: "Visit the Innovation Hub to upvote or create a draft." },
@@ -285,15 +285,15 @@ export const ActivityOverview: React.FC = () => {
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-6 shadow-xl border border-white/10 space-y-6 animate-fade-in" id="activity_overview_widget">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 space-y-6 animate-fade-in text-slate-900 dark:text-white font-sans" id="activity_overview_widget">
       {/* Widget Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-850 pb-5">
         <div>
-          <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-emerald-500 flex items-center gap-1.5">
+          <span className="text-[10px] uppercase font-mono font-bold tracking-widest text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
             <Flame className="h-3.5 w-3.5 text-orange-500 animate-pulse" /> Personal Analytics Radar
           </span>
-          <h2 className="text-lg font-bold text-white tracking-tight mt-1">Platform Activity & Academic Health</h2>
-          <p className="text-xs text-white/50 font-light mt-0.5">Real-time compilation of your multi-dimensional scientific contributions.</p>
+          <h2 className="text-lg font-bold text-slate-950 dark:text-white tracking-tight mt-1">Platform Activity & Academic Health</h2>
+          <p className="text-xs text-slate-600 dark:text-slate-400 font-light mt-0.5">Real-time compilation of your multi-dimensional scientific contributions.</p>
         </div>
         
         <div className="flex flex-wrap items-center gap-3 self-start sm:self-auto">
@@ -301,18 +301,18 @@ export const ActivityOverview: React.FC = () => {
           <button 
             onClick={handleCloudExport}
             disabled={syncStatus.loading}
-            className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl border text-xs font-semibold cursor-pointer active:scale-95 shadow-sm transition-all ${
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl border text-xs font-semibold cursor-pointer active:scale-95 shadow-sm transition-all ${
               !isFirebaseActive 
-                ? "bg-white/5 border-white/5 text-white/30 cursor-not-allowed opacity-60" 
-                : "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 hover:border-emerald-500/30 text-emerald-400"
+                ? "bg-slate-100 dark:bg-slate-950 border-slate-200 dark:border-slate-850 text-slate-400 dark:text-slate-500 cursor-not-allowed opacity-60" 
+                : "bg-emerald-50 dark:bg-emerald-950/20 hover:bg-emerald-100 dark:hover:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900/30 text-emerald-800 dark:text-emerald-400"
             }`}
             title={isFirebaseActive ? "Sync and export all bio details, scientific XP metrics, and portfolio history directly to cloud database storage" : "Enable cloud synchronization by authenticating via real Google account in header"}
             id="cloud_export_sync_btn"
           >
             {syncStatus.loading ? (
-              <RefreshCw className="h-4 w-4 animate-spin text-emerald-400" />
+              <RefreshCw className="h-4 w-4 animate-spin text-emerald-600 dark:text-emerald-450" />
             ) : (
-              <CloudUpload className="h-4 w-4 text-emerald-400" />
+              <CloudUpload className="h-4 w-4 text-emerald-600 dark:text-emerald-450" />
             )}
             <span>{syncStatus.loading ? "Exporting..." : "Export to Cloud"}</span>
           </button>
@@ -320,22 +320,22 @@ export const ActivityOverview: React.FC = () => {
           {/* Download summary button */}
           <button 
             onClick={downloadSummary}
-            className="flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-white/80 hover:text-white transition-all text-xs font-semibold cursor-pointer active:scale-95 shadow-sm"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 hover:bg-slate-100 dark:hover:bg-slate-850 border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 text-slate-700 dark:text-slate-300 transition-all text-xs font-semibold cursor-pointer active:scale-95 shadow-sm"
             title="Download full engagement data as JSON"
             id="download_activity_summary_btn"
           >
-            <Download className="h-4 w-4 text-emerald-400" />
+            <Download className="h-4 w-4 text-indigo-500 dark:text-indigo-400" />
             <span>Download Summary</span>
           </button>
 
           {/* Total contribution points */}
-          <div className="bg-white/5 border border-white/10 p-3 rounded-xl flex items-center gap-3.5 shadow-sm">
-            <div className="h-10 w-10 bh rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <div className="bg-slate-50 dark:bg-slate-955 border border-slate-200 dark:border-slate-800 p-2.5 rounded-xl flex items-center gap-3 shadow-sm">
+            <div className="h-10 w-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
               <TrendingUp className="h-5 w-5" />
             </div>
             <div>
-              <span className="block text-[9px] text-white/40 uppercase tracking-widest font-mono">Academic Power</span>
-              <span className="text-lg font-extrabold text-white leading-none">{totalXp} <span className="text-xs text-emerald-400 font-normal">XP</span></span>
+              <span className="block text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono leading-none">Academic Power</span>
+              <span className="text-lg font-extrabold text-slate-900 dark:text-white mt-1 block leading-none">{totalXp} <span className="text-xs text-emerald-600 dark:text-emerald-400 font-normal">XP</span></span>
             </div>
           </div>
         </div>
@@ -346,22 +346,22 @@ export const ActivityOverview: React.FC = () => {
         <div 
           className={`px-4 py-3 rounded-xl border text-xs font-medium flex items-center justify-between gap-3 animate-fade-in ${
             syncStatus.success 
-              ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
-              : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+              ? "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-900/30 text-emerald-850 dark:text-emerald-400" 
+              : "bg-red-50 dark:bg-red-955 border-red-200 dark:border-red-900/30 text-red-800 dark:text-red-400"
           }`}
           id="cloud_export_status_toast"
         >
           <div className="flex items-center gap-2">
             {syncStatus.success ? (
-              <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             ) : (
-              <ShieldAlert className="h-4 w-4 text-rose-400 shrink-0" />
+              <ShieldAlert className="h-4 w-4 text-red-500 shrink-0" />
             )}
             <span>{syncStatus.message}</span>
           </div>
           <button 
             onClick={() => setSyncStatus((prev) => ({ ...prev, message: null }))}
-            className="text-[10px] hover:underline uppercase font-mono tracking-wider bg-white/5 hover:bg-white/10 px-2 py-0.5 rounded border border-white/5 cursor-pointer text-white/80 shrink-0"
+            className="text-[10px] hover:underline uppercase font-mono tracking-wider bg-slate-100 dark:bg-slate-950 hover:bg-slate-200 dark:hover:bg-slate-850 px-2 py-0.5 rounded border border-slate-200 dark:border-slate-800 cursor-pointer text-slate-600 dark:text-slate-300 shrink-0"
           >
             Dismiss
           </button>
@@ -372,40 +372,40 @@ export const ActivityOverview: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
         {/* Column 1: Standing Progression */}
-        <div className="lg:col-span-7 bg-white/[0.02] border border-white/5 rounded-xl p-5 flex flex-col justify-between space-y-5 shadow-inner">
+        <div className="lg:col-span-7 bg-slate-50 dark:bg-slate-955 border border-slate-200/60 dark:border-slate-850 rounded-xl p-5 flex flex-col justify-between space-y-5">
           <div className="space-y-3.5">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-[10px] text-white/40 uppercase tracking-wider font-mono">Current Reputation Ranking</span>
-                <div className="text-base font-extrabold text-white tracking-tight mt-0.5 flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs tracking-wide">
+                <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Current Reputation Ranking</span>
+                <div className="text-base font-extrabold text-slate-900 dark:text-white tracking-tight mt-0.5 flex items-center gap-2">
+                  <span className="px-2.5 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/40 text-xs tracking-wide">
                     {currentStanding}
                   </span>
                 </div>
               </div>
               {remainingXp > 0 && (
                 <div className="text-right">
-                  <span className="text-[10px] text-white/40 uppercase tracking-wider font-mono">Next Tier Goal</span>
-                  <span className="block text-xs font-semibold text-white/85 mt-0.5">{nextStanding}</span>
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-mono">Next Tier Goal</span>
+                  <span className="block text-xs font-semibold text-slate-850 dark:text-white/85 mt-0.5">{nextStanding}</span>
                 </div>
               )}
             </div>
 
             {/* Visual Indicator of XP metrics bar */}
             <div className="space-y-1.5">
-              <div className="flex justify-between text-[10px] text-white/50 font-mono">
+              <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                 <span>{totalXp} XP accumulated</span>
                 <span>{remainingXp > 0 ? `${remainingXp} XP remaining` : "Outstanding Rank"}</span>
               </div>
-              <div className="w-full bg-white/5 border border-white/10 rounded-full h-2.5 overflow-hidden p-0.5">
+              <div className="w-full bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-850 rounded-full h-2.5 overflow-hidden p-0.5">
                 <div 
                   className="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-700 ease-out"
                   style={{ width: `${xpProgressPercent}%` }}
                 />
               </div>
-              <p className="text-[10px] text-white/40 leading-snug">
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-snug">
                 {remainingXp > 0 ? (
-                  <span>Need <strong className="text-white/70 font-semibold font-mono">{remainingXp} XP</strong> to reach <strong className="text-white/70 font-semibold">{nextStandingLabel}</strong>. Gather peer endorsements or log validated Achievements to ascend.</span>
+                  <span>Need <strong className="text-slate-700 dark:text-slate-300 font-semibold font-mono">{remainingXp} XP</strong> to reach <strong className="text-slate-700 dark:text-slate-300 font-semibold">{nextStandingLabel}</strong>. Gather peer endorsements or log validated Achievements to ascend.</span>
                 ) : (
                   <span>🎉 Outstanding! You have reached maximum standing status. Continue sharing valuable scholarly validations.</span>
                 )}
@@ -414,60 +414,60 @@ export const ActivityOverview: React.FC = () => {
           </div>
 
           {/* XP Sub-Category Breakdown Indicators */}
-          <div className="border-t border-white/5 pt-4">
-            <span className="block text-[9px] text-white/40 uppercase tracking-widest font-bold tracking-wider font-mono mb-2.5">
+          <div className="border-t border-slate-150 dark:border-slate-850 pt-4">
+            <span className="block text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-bold font-mono mb-2.5">
               XP Breakdown by Specialty Area
             </span>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-white/[0.03] p-2 border border-white/5 rounded-lg text-center">
-                <span className="block text-[8px] text-white/40 uppercase tracking-wider font-sans font-medium">Academic</span>
-                <span className="text-xs font-extrabold text-white mt-1 block font-mono">{profile.academicXp || 0} <span className="text-[8px] font-normal text-white/40 font-sans">XP</span></span>
+              <div className="bg-white dark:bg-slate-900 p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-center shadow-sm">
+                <span className="block text-[8px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-sans font-medium">Academic</span>
+                <span className="text-xs font-extrabold text-slate-800 dark:text-slate-250 mt-1 block font-mono">{profile.academicXp || 0} <span className="text-[8px] font-normal text-slate-400 dark:text-slate-500 font-sans">XP</span></span>
               </div>
-              <div className="bg-white/[0.03] p-2 border border-white/5 rounded-lg text-center">
-                <span className="block text-[8px] text-white/40 uppercase tracking-wider font-sans font-medium">Instructional</span>
-                <span className="text-xs font-extrabold text-white mt-1 block font-mono">{profile.teachingXp || 0} <span className="text-[8px] font-normal text-white/40 font-sans">XP</span></span>
+              <div className="bg-white dark:bg-slate-900 p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-center shadow-sm">
+                <span className="block text-[8px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-sans font-medium">Instructional</span>
+                <span className="text-xs font-extrabold text-slate-800 dark:text-slate-250 mt-1 block font-mono">{profile.teachingXp || 0} <span className="text-[8px] font-normal text-slate-400 dark:text-slate-500 font-sans">XP</span></span>
               </div>
-              <div className="bg-white/[0.03] p-2 border border-white/5 rounded-lg text-center">
-                <span className="block text-[8px] text-white/40 uppercase tracking-wider font-sans font-medium">Innovation</span>
-                <span className="text-xs font-extrabold text-white mt-1 block font-mono">{profile.innovationXp || 0} <span className="text-[8px] font-normal text-white/40 font-sans">XP</span></span>
+              <div className="bg-white dark:bg-slate-900 p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-center shadow-sm">
+                <span className="block text-[8px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-sans font-medium">Innovation</span>
+                <span className="text-xs font-extrabold text-slate-800 dark:text-slate-250 mt-1 block font-mono">{profile.innovationXp || 0} <span className="text-[8px] font-normal text-slate-400 dark:text-slate-500 font-sans">XP</span></span>
               </div>
-              <div className="bg-white/[0.03] p-2 border border-white/5 rounded-lg text-center">
-                <span className="block text-[8px] text-white/40 uppercase tracking-wider font-sans font-medium">Peer Kudos</span>
-                <span className="text-xs font-extrabold text-white mt-1 block font-mono">{profile.recognitionXp || 0} <span className="text-[8px] font-normal text-white/40 font-sans">XP</span></span>
+              <div className="bg-white dark:bg-slate-900 p-2 border border-slate-200 dark:border-slate-800 rounded-lg text-center shadow-sm">
+                <span className="block text-[8px] text-slate-400 dark:text-slate-500 uppercase tracking-wider font-sans font-medium">Peer Kudos</span>
+                <span className="text-xs font-extrabold text-slate-800 dark:text-slate-250 mt-1 block font-mono">{profile.recognitionXp || 0} <span className="text-[8px] font-normal text-slate-400 dark:text-slate-500 font-sans">XP</span></span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Column 2: Weekly Engagement Roadmap */}
-        <div className="lg:col-span-5 bg-white/[0.02] border border-white/5 rounded-xl p-5 flex flex-col justify-between space-y-4">
+        <div className="lg:col-span-5 bg-slate-50 dark:bg-slate-955 border border-slate-200/60 dark:border-slate-850 rounded-xl p-5 flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-1.5">
-                <CheckSquare className="h-4 w-4 text-emerald-400" />
-                <span className="text-xs font-semibold text-white">Engagement Checklist</span>
+                <CheckSquare className="h-4 w-4 text-emerald-600 dark:text-emerald-450" />
+                <span className="text-xs font-semibold text-slate-900 dark:text-white">Engagement Checklist</span>
               </div>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/10 px-2 py-0.5 rounded">
+              <span className="text-[10px] font-mono text-emerald-800 dark:text-emerald-450 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900/40 px-2 py-0.5 rounded">
                 {completedChecklistCount}/4 Active
               </span>
             </div>
 
             <ul className="space-y-2.5">
               {checklistItems.map((item, index) => (
-                <li key={index} className="flex items-start gap-2.5 group hover:bg-white/[0.01] p-1 rounded transition-colors">
+                <li key={index} className="flex items-start gap-2.5 group hover:bg-white/40 dark:hover:bg-slate-900/40 p-1 rounded transition-colors">
                   <span className="mt-0.5 shrink-0 select-none">
                     {item.done ? (
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400 fill-emerald-400/10" />
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-450 fill-emerald-500/10" />
                     ) : (
-                      <div className="h-4 w-4 rounded-full border border-white/20 group-hover:border-white/30 transition-colors" />
+                      <div className="h-4 w-4 rounded-full border border-slate-300 dark:border-slate-700 group-hover:border-slate-400 dark:group-hover:border-slate-500 transition-colors" />
                     )}
                   </span>
                   <div>
-                    <span className={`text-xs font-medium block leading-none ${item.done ? 'text-white/60 line-through' : 'text-white/85'}`}>
+                    <span className={`text-xs font-medium block leading-none ${item.done ? 'text-slate-400 dark:text-slate-500 line-through' : 'text-slate-850 dark:text-slate-200'}`}>
                       {item.label}
                     </span>
                     {!item.done && (
-                      <span className="text-[9px] text-emerald-400/70 font-sans leading-relaxed mt-1 block">{item.hint}</span>
+                      <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-sans leading-relaxed mt-1 block">{item.hint}</span>
                     )}
                   </div>
                 </li>
@@ -475,21 +475,21 @@ export const ActivityOverview: React.FC = () => {
             </ul>
           </div>
 
-          <div className="text-[10px] text-white/30 italic flex items-center gap-1 border-t border-white/5 pt-3">
-            <PlusCircle className="h-3 w-3 text-emerald-500" /> Complete goals to fuel scientific culture at ResiTrend.
+          <div className="text-[10px] text-slate-400 dark:text-slate-500 italic flex items-center gap-1 border-t border-slate-150 dark:border-slate-850 pt-3">
+            <PlusCircle className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" /> Complete goals to fuel scientific culture at ResiTrend.
           </div>
         </div>
 
       </div>
 
       {/* 7-Day Engagement Trend Line Chart */}
-      <div className="bg-white/[0.02] border border-white/5 rounded-xl p-5 shadow-inner space-y-4">
+      <div className="bg-slate-50 dark:bg-slate-955 border border-slate-200/60 dark:border-slate-850 rounded-xl p-5 space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <CalendarCheck className="h-4 w-4 text-emerald-400" />
-            <h3 className="text-xs font-semibold text-white tracking-wide">Scientific Engagement Trend (7-Day Overview)</h3>
+            <CalendarCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-450" />
+            <h3 className="text-xs font-semibold text-slate-900 dark:text-white tracking-wide">Scientific Engagement Trend (7-Day Overview)</h3>
           </div>
-          <span className="text-[10px] text-white/40 font-mono">Index incorporates Achievements, Kudos, and Innovation Actions</span>
+          <span className="text-[10px] text-slate-400 dark:text-slate-500 font-mono">Index incorporates Achievements, Kudos, and Innovation Actions</span>
         </div>
         
         <div className="h-[200px] w-full" id="engagement_trend_chart_container">
@@ -501,16 +501,16 @@ export const ActivityOverview: React.FC = () => {
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+              <CartesianGrid strokeDasharray="3 3" className="stroke-slate-200/50 dark:stroke-slate-800/30" vertical={false} />
               <XAxis 
                 dataKey="name" 
-                stroke="rgba(255,255,255,0.3)" 
+                className="fill-slate-400 dark:fill-slate-500"
                 fontSize={9}
                 tickLine={false}
                 axisLine={false}
               />
               <YAxis 
-                stroke="rgba(255,255,255,0.3)" 
+                className="fill-slate-400 dark:fill-slate-500"
                 fontSize={9}
                 tickLine={false}
                 axisLine={false}
@@ -520,21 +520,21 @@ export const ActivityOverview: React.FC = () => {
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="bg-slate-900/90 backdrop-blur-md border border-white/10 p-3 rounded-lg shadow-xl text-[10px] space-y-2">
-                        <p className="font-semibold text-white/50">{data.name}</p>
+                      <div className="bg-white dark:bg-slate-950 backdrop-blur-md border border-slate-200 dark:border-slate-800 p-3 rounded-lg shadow-md text-[10px] space-y-2">
+                        <p className="font-semibold text-slate-500 dark:text-slate-400">{data.name}</p>
                         <div className="space-y-1">
-                          <p className="flex items-center gap-1.5 text-emerald-400">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                            <span>Engagement Score: <strong className="font-extrabold text-white font-mono">{payload[0].value}</strong></span>
+                          <p className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                            <span>Engagement Score: <strong className="font-extrabold text-slate-800 dark:text-slate-100 font-mono">{payload[0].value}</strong></span>
                           </p>
-                          <p className="text-white/70 pl-3">
-                            Achievements: <span className="font-bold text-white font-mono">{data.Achievements}</span>
+                          <p className="text-slate-600 dark:text-slate-350 pl-3">
+                            Achievements: <span className="font-bold text-slate-800 dark:text-white font-mono">{data.Achievements}</span>
                           </p>
-                          <p className="text-white/70 pl-3">
-                            Peer Kudos: <span className="font-bold text-white font-sans">{data["Peer Kudos"]}</span>
+                          <p className="text-slate-600 dark:text-slate-350 pl-3">
+                            Peer Kudos: <span className="font-bold text-slate-800 dark:text-white font-sans">{data["Peer Kudos"]}</span>
                           </p>
-                          <p className="text-white/70 pl-3">
-                            Innovations: <span className="font-bold text-white font-mono">{data.Innovations}</span>
+                          <p className="text-slate-600 dark:text-slate-350 pl-3">
+                            Innovations: <span className="font-bold text-slate-800 dark:text-white font-mono">{data.Innovations}</span>
                           </p>
                         </div>
                       </div>
@@ -559,30 +559,30 @@ export const ActivityOverview: React.FC = () => {
 
       {/* Grid: Multi-dimensional academic metrics counters (Bento elements) */}
       <div>
-        <span className="block text-[9px] text-white/40 uppercase tracking-widest font-extrabold font-mono mb-3">
+        <span className="block text-[9px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-extrabold font-mono mb-3">
           Contribution Health Matrices
         </span>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           
           {/* Achievement Box */}
-          <div className="glass-item rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-md">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-white/50 font-mono">Academic Milestones</span>
-              <Award className="h-4 w-4 text-emerald-400" />
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Academic Milestones</span>
+              <Award className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <span className="block text-2xl font-black text-white font-mono">{totalMyAchievementsLength}</span>
-              <div className="grid grid-cols-3 gap-1 mt-1.5 text-[8px] text-white/40 font-mono text-center">
-                <div className="bg-white/5 p-1 rounded" title="Verified Achievements">
-                  <span className="block text-white/70 font-black">{verifiedAchievementsCount}</span>
+              <span className="block text-2xl font-black text-slate-900 dark:text-white font-mono">{totalMyAchievementsLength}</span>
+              <div className="grid grid-cols-3 gap-1 mt-1.5 text-[8px] text-slate-400 dark:text-slate-500 font-mono text-center">
+                <div className="bg-slate-50 dark:bg-slate-950 p-1 rounded" title="Verified Achievements">
+                  <span className="block text-slate-700 dark:text-slate-300 font-black">{verifiedAchievementsCount}</span>
                   <span>Veri</span>
                 </div>
-                <div className="bg-white/5 p-1 rounded" title="Validated Achievements">
-                  <span className="block text-white/70 font-black">{validatedAchievementsCount}</span>
+                <div className="bg-slate-50 dark:bg-slate-955 p-1 rounded" title="Validated Achievements">
+                  <span className="block text-slate-700 dark:text-slate-300 font-black">{validatedAchievementsCount}</span>
                   <span>Vali</span>
                 </div>
-                <div className="bg-white/5 p-1 rounded" title="Self Declared Achievements">
-                  <span className="block text-white/70 font-black">{selfDeclaredAchievementsCount}</span>
+                <div className="bg-slate-50 dark:bg-slate-955 p-1 rounded" title="Self Declared Achievements">
+                  <span className="block text-slate-700 dark:text-slate-300 font-black">{selfDeclaredAchievementsCount}</span>
                   <span>Self</span>
                 </div>
               </div>
@@ -590,22 +590,22 @@ export const ActivityOverview: React.FC = () => {
           </div>
 
           {/* Peer Matrix Box */}
-          <div className="glass-item rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-md">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-white/50 font-mono">Skill Endorsements</span>
-              <Users className="h-4 w-4 text-blue-400" />
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Skill Endorsements</span>
+              <Users className="h-4 w-4 text-blue-500 dark:text-blue-400" />
             </div>
             <div>
-              <span className="block text-2xl font-black text-white font-mono">
+              <span className="block text-2xl font-black text-slate-900 dark:text-white font-mono">
                 {endorsementsGivenCount + endorsementsReceivedCount}
               </span>
-              <div className="grid grid-cols-2 gap-1 mt-1.5 text-[8px] text-white/40 font-mono text-center">
-                <div className="bg-white/5 p-1 rounded" title="Given to others">
-                  <span className="block text-white/70 font-black">{endorsementsGivenCount}</span>
+              <div className="grid grid-cols-2 gap-1 mt-1.5 text-[8px] text-slate-400 dark:text-slate-500 font-mono text-center">
+                <div className="bg-slate-50 dark:bg-slate-955 p-1 rounded" title="Given to others">
+                  <span className="block text-slate-700 dark:text-slate-300 font-black">{endorsementsGivenCount}</span>
                   <span>Support Given</span>
                 </div>
-                <div className="bg-white/5 p-1 rounded" title="Received from peers">
-                  <span className="block text-white/70 font-black">{endorsementsReceivedCount}</span>
+                <div className="bg-slate-50 dark:bg-slate-955 p-1 rounded" title="Received from peers">
+                  <span className="block text-slate-700 dark:text-slate-300 font-black">{endorsementsReceivedCount}</span>
                   <span>Kudos Received</span>
                 </div>
               </div>
@@ -613,22 +613,22 @@ export const ActivityOverview: React.FC = () => {
           </div>
 
           {/* Kudos Box */}
-          <div className="glass-item rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-md">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-white/50 font-mono">Silent Kudos (Applause)</span>
-              <Flame className="h-4 w-4 text-orange-400" />
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Silent Kudos (Applause)</span>
+              <Flame className="h-4 w-4 text-orange-500 dark:text-orange-400" />
             </div>
             <div>
-              <span className="block text-2xl font-black text-white font-mono">
+              <span className="block text-2xl font-black text-slate-900 dark:text-white font-mono">
                 {recognitionsSentCount + recognitionsReceivedCount}
               </span>
-              <div className="grid grid-cols-2 gap-1 mt-1.5 text-[8px] text-white/40 font-mono text-center">
-                <div className="bg-white/5 p-1 rounded" title="Silent Applause Sent">
-                  <span className="block text-white/70 font-black">{recognitionsSentCount}</span>
+              <div className="grid grid-cols-2 gap-1 mt-1.5 text-[8px] text-slate-400 dark:text-slate-500 font-mono text-center">
+                <div className="bg-slate-50 dark:bg-slate-955 p-1 rounded" title="Silent Applause Sent">
+                  <span className="block text-slate-700 dark:text-slate-300 font-black">{recognitionsSentCount}</span>
                   <span>Sent</span>
                 </div>
-                <div className="bg-white/5 p-1 rounded" title="Silent Applause Received">
-                  <span className="block text-white/70 font-black">{recognitionsReceivedCount}</span>
+                <div className="bg-slate-50 dark:bg-slate-955 p-1 rounded" title="Silent Applause Received">
+                  <span className="block text-slate-700 dark:text-slate-300 font-black">{recognitionsReceivedCount}</span>
                   <span>Received</span>
                 </div>
               </div>
@@ -636,22 +636,22 @@ export const ActivityOverview: React.FC = () => {
           </div>
 
           {/* Innovation Box */}
-          <div className="glass-item rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-md">
+          <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] text-white/50 font-mono">Innovations Hub</span>
-              <Lightbulb className="h-4 w-4 text-amber-400" />
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">Innovations Hub</span>
+              <Lightbulb className="h-4 w-4 text-amber-500 dark:text-amber-400" />
             </div>
             <div>
-              <span className="block text-2xl font-black text-white font-mono">
+              <span className="block text-2xl font-black text-slate-900 dark:text-white font-mono">
                 {innovationsSubmittedCount}
               </span>
-              <div className="grid grid-cols-2 gap-1 mt-1.5 text-[8px] text-white/40 font-mono text-center">
-                <div className="bg-white/5 p-1 rounded" title="Proposed Projects">
-                  <span className="block text-white/70 font-black">{innovationsSubmittedCount}</span>
+              <div className="grid grid-cols-2 gap-1 mt-1.5 text-[8px] text-slate-400 dark:text-slate-500 font-mono text-center">
+                <div className="bg-slate-50 dark:bg-slate-955 p-1 rounded" title="Proposed Projects">
+                  <span className="block text-slate-700 dark:text-slate-300 font-black">{innovationsSubmittedCount}</span>
                   <span>Projects</span>
                 </div>
-                <div className="bg-white/5 p-1 rounded" title="Upvotes Contributed">
-                  <span className="block text-white/70 font-black">{innovationsUpvotesGivenCount}</span>
+                <div className="bg-slate-50 dark:bg-slate-955 p-1 rounded" title="Upvotes Contributed">
+                  <span className="block text-slate-700 dark:text-slate-300 font-black">{innovationsUpvotesGivenCount}</span>
                   <span>Upvoted</span>
                 </div>
               </div>

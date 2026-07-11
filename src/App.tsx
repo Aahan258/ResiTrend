@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { motion } from "motion/react";
+import React, { useState, useEffect, useMemo } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
@@ -29,6 +29,7 @@ const bannerItemVariants = {
 };
 
 // Core views
+import { LandingPage } from "./marketing/LandingPage";
 import { HallOfImpact } from "./components/HallOfImpact";
 import { SilentApplause } from "./components/SilentApplause";
 import { EndorsementsComponent } from "./components/EndorsementsComponent";
@@ -37,6 +38,16 @@ import { LeaderboardsComponent } from "./components/LeaderboardsComponent";
 import { Announcements } from "./components/Announcements";
 import { AdminPanel } from "./components/AdminPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
+import { NotificationsPanel } from "./components/NotificationsPanel";
+
+// New modules for Ophthalmology Refactor
+import { Dashboard, SurgicalLog } from "./components/Dashboard";
+import { SurgicalLogbook } from "./components/SurgicalLogbook";
+import { AcademicsResearch } from "./components/AcademicsResearch";
+import { DutyClinics } from "./components/DutyClinics";
+import { PeerRecognition } from "./components/PeerRecognition";
+import { LearningHub } from "./components/LearningHub";
+import { PortfolioAnalytics } from "./components/PortfolioAnalytics";
 
 // Mobile icon shortcuts
 import { 
@@ -56,7 +67,11 @@ import {
   Upload,
   X,
   FileImage,
-  Share2
+  Share2,
+  Home,
+  BookOpen,
+  Microscope,
+  Brain
 } from "lucide-react";
 
 const compressImage = (
@@ -207,8 +222,101 @@ const CircularProgressRing: React.FC<{ value: number; size?: number; strokeWidth
 };
 
 const MainLayout: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>("impact");
-  const { isAdmin, profile, authError, clearAuthError, updateProfilePhoto, updateProfileBio } = useAuth();
+  const [activeTab, setActiveTab] = useState<string>("hall_of_impact");
+  const [surgicalLogs, setSurgicalLogs] = useState<SurgicalLog[]>(() => {
+    const cached = localStorage.getItem("resitrend_surgical_logs");
+    if (cached) return JSON.parse(cached);
+    return [
+      { id: "1", date: "2026-07-04", procedure: "Phaco", supervisor: "Dr. Nair", role: "Performed", difficulty: "Medium", complications: "None" },
+      { id: "2", date: "2026-07-02", procedure: "Trabeculectomy", supervisor: "Dr. Sharma", role: "Assisted", difficulty: "Complex", complications: "None" },
+      { id: "3", date: "2026-06-29", procedure: "Intravitreal Injection", supervisor: "Dr. Mehta", role: "Performed", difficulty: "Easy", complications: "None" },
+      { id: "4", date: "2026-06-25", procedure: "AS-OCT", supervisor: "Dr. Nair", role: "Performed", difficulty: "Easy", complications: "None" }
+    ];
+  });
+  const { user, isAdmin, profile, authError, clearAuthError, updateProfilePhoto, updateProfileBio } = useAuth();
+
+  const [isSaturdayMode, setIsSaturdayMode] = useState<boolean>(() => {
+    return localStorage.getItem("saturday_simulation_active") === "true";
+  });
+
+  const [saturdayCompleted, setSaturdayCompleted] = useState<boolean>(() => {
+    return localStorage.getItem(`saturday_quiz_completed_${profile?.uid || "guest"}`) === "true";
+  });
+
+  const [saturdayScore, setSaturdayScore] = useState<number>(() => {
+    return Number(localStorage.getItem(`saturday_quiz_score_${profile?.uid || "guest"}`) || "0");
+  });
+
+  // Global Toast Notification State
+  const [toast, setToast] = useState<{ message: string; sub?: string } | null>(null);
+
+  // Global Demo Mode active flag
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(() => {
+    return localStorage.getItem("resitrend_pitch_demo_mode") === "true";
+  });
+
+  // Auto save surgical logs to local storage
+  useEffect(() => {
+    localStorage.setItem("resitrend_surgical_logs", JSON.stringify(surgicalLogs));
+  }, [surgicalLogs]);
+
+  // Auto clear toast notifications
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => {
+        setToast(null);
+      }, 4500);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    const handleModeChange = () => {
+      setIsSaturdayMode(localStorage.getItem("saturday_simulation_active") === "true");
+      setSaturdayCompleted(localStorage.getItem(`saturday_quiz_completed_${profile?.uid || "guest"}`) === "true");
+      setSaturdayScore(Number(localStorage.getItem(`saturday_quiz_score_${profile?.uid || "guest"}`) || "0"));
+    };
+    const handleQuizSubmitted = (e: Event) => {
+      setSaturdayCompleted(true);
+      const scoreVal = (e as CustomEvent).detail?.score ?? 0;
+      setSaturdayScore(scoreVal);
+    };
+    const handleTabChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && typeof customEvent.detail === "string") {
+        setActiveTab(customEvent.detail);
+      }
+    };
+    const handleToast = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      setToast(detail);
+    };
+    const handleInjectDemo = (e: Event) => {
+      const logs = (e as CustomEvent).detail;
+      setSurgicalLogs(logs);
+      setIsDemoMode(true);
+    };
+    const handleToggleDemo = (e: Event) => {
+      const active = (e as CustomEvent).detail;
+      setIsDemoMode(active);
+    };
+
+    window.addEventListener("saturday_mode_change", handleModeChange);
+    window.addEventListener("saturday_quiz_submitted", handleQuizSubmitted);
+    window.addEventListener("set-active-tab", handleTabChange);
+    window.addEventListener("resitrend-toast", handleToast as any);
+    window.addEventListener("resitrend-inject-demo", handleInjectDemo as any);
+    window.addEventListener("resitrend-toggle-demo", handleToggleDemo as any);
+
+    return () => {
+      window.removeEventListener("saturday_mode_change", handleModeChange);
+      window.removeEventListener("saturday_quiz_submitted", handleQuizSubmitted);
+      window.removeEventListener("set-active-tab", handleTabChange);
+      window.removeEventListener("resitrend-toast", handleToast as any);
+      window.removeEventListener("resitrend-inject-demo", handleInjectDemo as any);
+      window.removeEventListener("resitrend-toggle-demo", handleToggleDemo as any);
+    };
+  }, [profile?.uid]);
 
   // Action modals states
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
@@ -337,38 +445,64 @@ const MainLayout: React.FC = () => {
   // Route/Tab switcher logic
   const renderContent = () => {
     switch (activeTab) {
-      case "impact":
-        return <HallOfImpact />;
-      case "applause":
+      case "hall_of_impact":
+        return <PortfolioAnalytics surgicalLogs={surgicalLogs} />;
+      case "leaderboards":
+        return <LeaderboardsComponent />;
+      case "silent_applause":
         return <SilentApplause />;
       case "endorsements":
         return <EndorsementsComponent />;
-      case "innovation":
+      case "innovation_hub":
         return <InnovationHub />;
-      case "leaderboards":
-        return <LeaderboardsComponent />;
       case "announcements":
         return <Announcements />;
+      case "dashboard":
+        return <Dashboard setActiveTab={setActiveTab} surgicalLogs={surgicalLogs} setSurgicalLogs={setSurgicalLogs} />;
+      case "logbook":
+        return <SurgicalLogbook surgicalLogs={surgicalLogs} setSurgicalLogs={setSurgicalLogs} />;
+      case "academics":
+        return <AcademicsResearch />;
+      case "duty":
+        return <DutyClinics />;
+      case "recognition":
+        return <PeerRecognition />;
+      case "learning":
+        return <LearningHub />;
+      case "portfolio":
+        return <PortfolioAnalytics surgicalLogs={surgicalLogs} />;
+      case "notifications":
+        return <NotificationsPanel />;
       case "settings":
         return <SettingsPanel />;
       case "admin":
-        return isAdmin ? <AdminPanel /> : <HallOfImpact />;
+        return isAdmin ? <AdminPanel /> : <PortfolioAnalytics surgicalLogs={surgicalLogs} />;
       default:
-        return <HallOfImpact />;
+        return <PortfolioAnalytics surgicalLogs={surgicalLogs} />;
     }
   };
 
-  // Mobile Navigation Bottom Bar Configuration
+  // Mobile Navigation Bottom Bar Configuration (representing the 6 primary views)
   const mobileNavItems = [
-    { id: "impact", label: "Impact", icon: Award },
-    { id: "applause", label: "Applause", icon: Heart },
-    { id: "endorsements", label: "Skills", icon: CheckCircle },
-    { id: "innovation", label: "Ideas", icon: Lightbulb },
-    { id: "leaderboards", label: "Boards", icon: Trophy },
+    { id: "hall_of_impact", label: "Impact", icon: Award },
+    { id: "leaderboards", label: "Standings", icon: Trophy },
+    { id: "silent_applause", label: "Kudos", icon: Heart },
+    { id: "endorsements", label: "Reviews", icon: CheckCircle },
+    { id: "innovation_hub", label: "Ideas", icon: Lightbulb },
+    { id: "announcements", label: "Alerts", icon: Megaphone },
   ];
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-zinc-950 text-white flex flex-col font-sans select-none" id="main_layout_scaffold">
+        <Header />
+        <LandingPage />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans select-none" id="main_layout_scaffold">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white flex flex-col font-sans select-none" id="main_layout_scaffold">
       {/* 1. Global Navigation Header */}
       <Header />
 
@@ -397,10 +531,47 @@ const MainLayout: React.FC = () => {
               </div>
             )}
 
+            {/* Saturday Clinical Quiz Mode Reminder */}
+            {isSaturdayMode && (
+              <div className="bg-teal-500/10 border border-teal-500/20 p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs shadow-md animate-fade-in" id="saturday_quiz_global_reminder">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-lg bg-teal-500/10 border border-teal-500/30 flex items-center justify-center text-teal-600 dark:text-teal-400">
+                    <Brain className="h-5 w-5 animate-pulse" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] bg-teal-500 text-zinc-950 font-bold uppercase tracking-wider font-mono px-1 rounded-sm">LIVE EVALUATION</span>
+                      <p className="font-bold text-slate-950 dark:text-white font-sans">Saturday Clinical Quiz: Refractive Surgery</p>
+                    </div>
+                    {saturdayCompleted ? (
+                      <p className="text-teal-600 dark:text-teal-400 font-mono text-[11px]">✓ Completed! Score: {saturdayScore}/5 • Merit Points (+{saturdayScore * 30 + (saturdayScore === 5 ? 100 : 0)} XP) dispatched!</p>
+                    ) : (
+                      <p className="text-slate-600 dark:text-slate-300 font-sans text-[11px]">All residents are required to complete this week's 5-question clinical evaluation before midnight.</p>
+                    )}
+                  </div>
+                </div>
+                {!saturdayCompleted ? (
+                  <button
+                    onClick={() => setActiveTab("learning")}
+                    className="bg-teal-500 hover:bg-teal-400 text-zinc-950 font-bold px-4 py-2 rounded-lg text-xs transition duration-150 shadow-sm shadow-teal-500/10 cursor-pointer w-full sm:w-auto text-center shrink-0"
+                  >
+                    Take Quiz Now
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setActiveTab("learning")}
+                    className="bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-white/80 border border-slate-300 dark:border-white/10 font-bold px-4 py-2 rounded-lg text-xs transition duration-150 cursor-pointer w-full sm:w-auto text-center shrink-0"
+                  >
+                    View Standings
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Top Bulletin Banner / Announcement highlight (Real-time positive reinforcement) */}
             {profile && (
               <motion.div 
-                className="bg-white/5 border border-white/10 p-3.5 sm:p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-[0_0_15px_rgba(255,255,255,0.03)]" 
+                className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 p-3.5 sm:p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-sm" 
                 id="bulletin_completion_banner"
                 variants={bannerContainerVariants}
                 initial="hidden"
@@ -411,31 +582,31 @@ const MainLayout: React.FC = () => {
                     <CircularProgressRing value={profile.profileCompletionScore || 0} size={42} strokeWidth={3} />
                   </motion.div>
                   <motion.div variants={bannerItemVariants} className="space-y-1 min-w-0 flex-1 sm:flex-initial">
-                    <p className="text-white/90 font-medium leading-none flex items-center gap-1.5 font-sans">
-                      <Sparkles className="h-4 w-4 text-amber-400 animate-pulse shrink-0" />
-                      <span className="truncate">Welcome back, <span className="font-bold text-white">{profile.displayName}</span></span>
+                    <p className="text-slate-950 dark:text-white font-medium leading-none flex items-center gap-1.5 font-sans">
+                      <Award className="h-4 w-4 text-emerald-500 dark:text-emerald-400 shrink-0" />
+                      <span className="truncate">Welcome back, <span className="font-bold text-emerald-600 dark:text-emerald-400">{profile.displayName}</span></span>
                     </p>
-                    <p className="text-white/50 text-[11px] font-light leading-snug">
-                      Your portfolio completion is currently at <span className="text-emerald-400 font-semibold font-mono"><ProfileCompletionCountUp target={profile.profileCompletionScore || 0} />%</span>. Keep building your clinical profile!
+                    <p className="text-slate-500 dark:text-slate-400 text-[11px] font-normal leading-snug">
+                      Your portfolio completion is currently at <span className="text-emerald-600 dark:text-emerald-400 font-semibold font-mono"><ProfileCompletionCountUp target={profile.profileCompletionScore || 0} />%</span>. Keep building your clinical profile!
                     </p>
                     <div className="flex flex-wrap items-center gap-2 pt-1.5" id="completion_banner_actions_group">
                       <button 
                         onClick={() => setIsPhotoModalOpen(true)}
-                        className="text-emerald-400 hover:text-emerald-300 font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1 cursor-pointer transition hover:underline bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded border border-white/5 shadow-sm shrink-0"
+                        className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1 cursor-pointer transition hover:underline bg-emerald-500/5 hover:bg-emerald-500/10 px-2.5 py-1 rounded border border-emerald-500/10 shadow-sm shrink-0"
                         id="bulletin_upload_photo_btn"
                       >
                         <Camera className="h-3 w-3" /> Upload Photo
                       </button>
                       <button 
                         onClick={handleOpenBioModal}
-                        className="text-amber-400 hover:text-amber-300 font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1 cursor-pointer transition hover:underline bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded border border-white/5 shadow-sm shrink-0"
+                        className="text-amber-600 dark:text-amber-400 hover:text-amber-500 font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1 cursor-pointer transition hover:underline bg-amber-500/5 hover:bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/10 shadow-sm shrink-0"
                         id="bulletin_edit_bio_btn"
                       >
                         <Edit3 className="h-3 w-3" /> Edit Bio
                       </button>
                       <button 
                         onClick={handleShareProfile}
-                        className="text-cyan-400 hover:text-cyan-300 font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition hover:underline bg-white/5 hover:bg-white/10 px-2.5 py-1 rounded border border-white/5 shadow-sm font-mono shrink-0"
+                        className="text-cyan-600 dark:text-cyan-400 hover:text-cyan-500 font-semibold text-[10px] uppercase tracking-wider flex items-center gap-1.5 cursor-pointer transition hover:underline bg-cyan-500/5 hover:bg-cyan-500/10 px-2.5 py-1 rounded border border-cyan-500/10 shadow-sm font-mono shrink-0"
                         id="bulletin_share_profile_btn"
                       >
                         <Share2 className="h-3 w-3" /> 
@@ -447,7 +618,7 @@ const MainLayout: React.FC = () => {
                 <motion.button 
                   variants={bannerItemVariants}
                   onClick={() => setActiveTab("settings")}
-                  className="text-white/70 hover:text-white hover:bg-white/10 border border-white/5 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer font-mono text-[9px] uppercase tracking-wider font-semibold shrink-0"
+                  className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer font-mono text-[9px] uppercase tracking-wider font-semibold shrink-0"
                 >
                   Configure Links
                 </motion.button>
@@ -462,7 +633,7 @@ const MainLayout: React.FC = () => {
       </div>
 
       {/* 3. Mobile Navigation Bottom Bar - Mobile devices only */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/5 backdrop-blur-xl border-t border-white/10 py-2.5 px-4 flex items-center justify-around md:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.3)]" id="mobile_floating_nav_dock">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 py-2.5 px-4 flex items-center justify-around md:hidden shadow-[0_-10px_30px_rgba(0,0,0,0.05)] dark:shadow-[0_-10px_30px_rgba(0,0,0,0.3)]" id="mobile_floating_nav_dock">
         {mobileNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -471,11 +642,11 @@ const MainLayout: React.FC = () => {
               key={item.id}
               onClick={() => setActiveTab(item.id)}
               className={`flex flex-col items-center gap-1 text-[10px] font-medium transition cursor-pointer ${
-                isActive ? "text-white font-bold" : "text-white/40 hover:text-white/70"
+                isActive ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
               }`}
               id={`mobile_tab_${item.id}`}
             >
-              <Icon className={`h-4.5 w-4.5 ${isActive ? "scale-110 text-white" : "text-white/40"}`} />
+              <Icon className={`h-4.5 w-4.5 ${isActive ? "scale-110 text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500"}`} />
               <span className="leading-none">{item.label}</span>
             </button>
           );
@@ -484,11 +655,11 @@ const MainLayout: React.FC = () => {
         <button
           onClick={() => setActiveTab("settings")}
           className={`flex flex-col items-center gap-1 text-[10px] font-medium transition cursor-pointer ${
-            activeTab === "settings" ? "text-white font-bold" : "text-white/40"
+            activeTab === "settings" ? "text-emerald-600 dark:text-emerald-400 font-bold" : "text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
           }`}
           id="mobile_tab_settings"
         >
-          <Settings className={`h-4.5 w-4.5 ${activeTab === "settings" ? "text-white" : "text-white/40"}`} />
+          <Settings className={`h-4.5 w-4.5 ${activeTab === "settings" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400 dark:text-slate-500"}`} />
           <span className="leading-none">Links</span>
         </button>
       </nav>
@@ -706,6 +877,44 @@ const MainLayout: React.FC = () => {
               </button>
             </div>
           </motion.div>
+        </div>
+      )}
+
+      {/* Global Toast Notification Popup */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.9 }}
+            className="fixed bottom-12 right-6 z-50 max-w-sm bg-zinc-950/95 border border-cyan-500/40 rounded-2xl p-4 shadow-2xl backdrop-blur-md flex items-start gap-3.5"
+            id="global_toast_popup"
+          >
+            <div className="h-9 w-9 rounded-xl bg-cyan-500/10 border border-cyan-400/30 flex items-center justify-center text-cyan-400 shrink-0">
+              <Award className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <span className="block text-xs font-bold text-white tracking-tight leading-snug">{toast.message}</span>
+              {toast.sub && (
+                <span className="block text-[10px] text-white/50 mt-0.5 font-mono leading-relaxed">{toast.sub}</span>
+              )}
+            </div>
+            <button
+              onClick={() => setToast(null)}
+              className="text-white/30 hover:text-white p-0.5 rounded hover:bg-white/5 transition cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Presentation Mode Status Banner Strip */}
+      {isDemoMode && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-gradient-to-r from-cyan-950 to-indigo-950 border-t border-cyan-500/30 py-2.5 px-4 text-center flex items-center justify-center gap-2 text-[10px] text-cyan-300 font-mono font-bold select-none shadow-[0_-4px_20px_rgba(0,0,0,0.5)]">
+          <span className="h-2 w-2 rounded-full bg-cyan-400 animate-ping inline-block" />
+          <span>HACK-EYE-THON 2026 PRESENTATION MODE ACTIVE</span>
+          <span className="text-white/40 font-normal">| Specialty: Senior Resident (Retina) | Complete Portfolio Pre-Loaded | Privacy Engine Engaged</span>
         </div>
       )}
     </div>

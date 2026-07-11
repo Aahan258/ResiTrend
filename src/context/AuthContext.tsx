@@ -98,7 +98,7 @@ const SEED_PROFILES: Profile[] = [
     uid: "seed_aahan",
     displayName: "Dr. Aahan Shah",
     bio: "Senior Ophthalmology Resident with research interests in deep learning models for glaucoma progression and diabetic retinopathy screening.",
-    year: "Senior Resident (Y4)",
+    year: "Senior Resident (Glaucoma)",
     googleScholar: "https://scholar.google.com/citations?user=AahanEye",
     orcid: "https://orcid.org/0000-0002-1823-3914",
     linkedIn: "https://linkedin.com/in/aahan-ophthalmology",
@@ -602,8 +602,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setProfile(sim.profile);
               setIsAdmin(sim.isAdmin);
             } else {
-              // Set a default guest resident to make the preview active and beautiful instantly
-              bypassAuth("resident", "Dr. Rohan Mehta", "Junior Resident (Y2)");
+              // No auto-bypass by default to respect landing page public states
+              setUser(null);
+              setProfile(null);
+              setIsAdmin(false);
             }
           }
           setLoading(false);
@@ -658,6 +660,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     let recognitionXp = myRecognitions.length * 40;
     const remainingEndords = myEndorsements.filter(e => e.category !== "Teaching" && e.category !== "Innovation").length;
     recognitionXp += remainingEndords * 25;
+
+    // --- High-Engagement Gamification Drivers for Senders ---
+    // 1. Silent Applause Sent: +2 XP per clinical appreciation sent to peers
+    const mySentRecognitionsCount = allRecognitions.filter(r => r.fromUserId === uid).length;
+    recognitionXp += mySentRecognitionsCount * 2;
+
+    // 2. Peer Endorsements Sent: +2 XP per professional skill endorsement sent to colleagues
+    const mySentEndorsementsCount = allEndorsements.filter(e => e.fromUserId === uid).length;
+    recognitionXp += mySentEndorsementsCount * 2;
+
+    // 3. Innovation Upvotes Cast: +1 XP per upvote cast on a peer's innovation idea
+    const peerUpvotesCastCount = allInnovations.filter(i => i.upvotedBy.includes(uid) && i.userId !== uid).length;
+    innovationXp += peerUpvotesCastCount * 1;
+
+    // 4. Comments Cast on Innovations: +3 XP per constructive comment posted
+    const myCommentsSent = JSON.parse(localStorage.getItem(`pulse_comments_sent_${uid}`) || "[]");
+    innovationXp += myCommentsSent.length * 3;
 
     const totalXp = academicXp + teachingXp + innovationXp + recognitionXp;
 
@@ -932,6 +951,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const addEndorsement = async (toUserId: string, category: any) => {
     if (!profile || profile.uid === toUserId) return;
+
+    // Limit check: max 3 per day, max 30 per month
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+    const mySentEndorsements = endorsements.filter(e => e.fromUserId === profile.uid);
+    const sentToday = mySentEndorsements.filter(e => {
+      const createdAtTime = new Date(e.createdAt).getTime();
+      return createdAtTime >= startOfDay;
+    }).length;
+
+    const sentThisMonth = mySentEndorsements.filter(e => {
+      const createdAtTime = new Date(e.createdAt).getTime();
+      return createdAtTime >= startOfMonth;
+    }).length;
+
+    if (sentToday >= 3) {
+      throw new Error(`Daily limit reached: High-engagement gamification rules cap peer endorsements at 3 per day. (${sentToday}/3 sent today)`);
+    }
+
+    if (sentThisMonth >= 30) {
+      throw new Error(`Monthly limit reached: Gamification safety limits cap peer endorsements at 30 per month. (${sentThisMonth}/30 sent this month)`);
+    }
+
     const newId = `end_${Date.now()}`;
     const newEnd: Endorsement = {
       id: newId,
@@ -989,6 +1033,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addSilentApplause = async (toUserId: string, category: RecognitionCategory, message: string) => {
     if (!profile || profile.uid === toUserId) return;
     
+    // Limit check: max 2 per day, max 30 per month
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+    const mySentRecognitions = recognitions.filter(r => r.fromUserId === profile.uid);
+    const sentToday = mySentRecognitions.filter(r => {
+      const createdAtTime = new Date(r.createdAt).getTime();
+      return createdAtTime >= startOfDay;
+    }).length;
+
+    const sentThisMonth = mySentRecognitions.filter(r => {
+      const createdAtTime = new Date(r.createdAt).getTime();
+      return createdAtTime >= startOfMonth;
+    }).length;
+
+    if (sentToday >= 2) {
+      throw new Error(`Daily limit reached: High-engagement gamification rules cap anonymous appreciations at 2 per day to maintain professional credibility. (${sentToday}/2 sent today)`);
+    }
+
+    if (sentThisMonth >= 30) {
+      throw new Error(`Monthly limit reached: Gamification safety limits cap anonymous appreciations at 30 per month. (${sentThisMonth}/30 sent this month)`);
+    }
+
     // Prevent duplicate voting anonymously using a monthly compound hash
     const date = new Date();
     const currentMonthKey = `${date.getFullYear()}-${date.getMonth()}`;
@@ -1005,7 +1073,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toUserId,
       message,
       category,
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      fromUserId: profile.uid // Secure mapping for XP attribution and limit checking
     };
 
     await executeDataAction(
@@ -1140,6 +1209,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const addComment = async (ideaId: string, text: string) => {
     if (!profile) return;
     
+    // Check daily and monthly comment limit: max 3 per day, max 30 per month
+    const myCommentsSent = JSON.parse(localStorage.getItem(`pulse_comments_sent_${profile.uid}`) || "[]");
+    const now = new Date();
+    const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+
+    const commentsToday = myCommentsSent.filter((c: any) => new Date(c.createdAt).getTime() >= startOfDay).length;
+    const commentsThisMonth = myCommentsSent.filter((c: any) => new Date(c.createdAt).getTime() >= startOfMonth).length;
+
+    if (commentsToday >= 3) {
+      throw new Error(`Daily limit reached: High-engagement gamification rules cap comments on ideas at 3 per day. (${commentsToday}/3 sent today)`);
+    }
+
+    if (commentsThisMonth >= 30) {
+      throw new Error(`Monthly limit reached: Gamification safety limits cap comments on ideas at 30 per month. (${commentsThisMonth}/30 sent this month)`);
+    }
+
     // We update the local comments count and structure
     await executeDataAction(
       (p, a, e, r, i, n) => {
@@ -1147,8 +1233,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Save comment to helper local structures
         const commentsList = JSON.parse(localStorage.getItem(`pulse_comments_${ideaId}`) || "[]");
+        const newCommId = `comm_${Date.now()}`;
         const newComm = {
-          id: `comm_${Date.now()}`,
+          id: newCommId,
           ideaId,
           userId: profile.uid,
           displayName: profile.displayName,
@@ -1156,6 +1243,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           createdAt: new Date().toISOString()
         };
         localStorage.setItem(`pulse_comments_${ideaId}`, JSON.stringify([newComm, ...commentsList]));
+
+        // Log this comment action for XP tracking
+        myCommentsSent.push({ id: newCommId, ideaId, createdAt: new Date().toISOString() });
+        localStorage.setItem(`pulse_comments_sent_${profile.uid}`, JSON.stringify(myCommentsSent));
 
         return {
           profiles: p,

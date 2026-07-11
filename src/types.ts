@@ -10,9 +10,9 @@ export type ResidentYear =
   | "Junior Resident (Y1)"
   | "Junior Resident (Y2)"
   | "Junior Resident (Y3)"
-  | "Senior Resident (Y4)"
-  | "Senior Resident (Y5)"
-  | "Senior Resident (Y6)";
+  | "Senior Resident (Cornea)"
+  | "Senior Resident (Retina)"
+  | "Senior Resident (Glaucoma)";
 
 export interface UserAccount {
   uid: string;
@@ -114,6 +114,7 @@ export interface Recognition {
   message: string;
   category: RecognitionCategory;
   createdAt: string;
+  fromUserId?: string; // Optional field to enable secure sender XP mapping and anti-abuse limits
 }
 
 export type InnovationStatus = "Submitted" | "Community Review" | "Under Consideration" | "Approved" | "Implemented";

@@ -22,9 +22,9 @@ export const SettingsPanel: React.FC = () => {
     "Junior Resident (Y1)",
     "Junior Resident (Y2)",
     "Junior Resident (Y3)",
-    "Senior Resident (Y4)",
-    "Senior Resident (Y5)",
-    "Senior Resident (Y6)"
+    "Senior Resident (Cornea)",
+    "Senior Resident (Retina)",
+    "Senior Resident (Glaucoma)"
   ];
 
   const handleSaveBio = async (e: React.FormEvent) => {
